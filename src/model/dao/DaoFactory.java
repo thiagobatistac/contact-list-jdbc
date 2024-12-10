@@ -2,6 +2,7 @@ package model.dao;
 
 import db.DB;
 import model.dao.impl.ContactDaoJDBC;
+import model.dao.impl.ContactListDaoJDBC;
 
 public class DaoFactory {
 
@@ -10,7 +11,7 @@ public class DaoFactory {
     }
 
     public static ContactListDao createContactListDao(){
-        return new ContactListDao(DB.getConnection());
-        }
+        return new ContactListDaoJDBC(DB.getConnection());
     }
+}
 

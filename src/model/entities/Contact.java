@@ -1,21 +1,30 @@
 package model.entities;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Contact {
+public class Contact implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
     private Integer id;
     private String name;
     private String email;
     private String phoneNumber;
     private Integer groupId;
-
     private ContactList contactList;
 
-    public Contact() {
+    // Constructor that does not need ContactList
+    public Contact(Integer id, String name, String email, String phoneNumber, Integer groupId) {
+        this.id = null;
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.groupId = groupId;
     }
 
+
+    // Constructor with ContactList
     public Contact(Integer id, String name, String email, String phoneNumber, Integer groupId, ContactList contactList) {
         this.id = id;
         this.name = name;

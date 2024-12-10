@@ -18,13 +18,12 @@ public class ContactListDaoJDBC implements ContactListDao {
 
     @Override
     public void insert(ContactList obj) {
-
         PreparedStatement st = null;
 
         try {
             st = conn.prepareStatement(
                     "INSERT INTO contactlist " +
-                            "(Name) " +
+                            "(groupName) " +
                             "VALUES (?)",
                     Statement.RETURN_GENERATED_KEYS);
 
@@ -54,9 +53,10 @@ public class ContactListDaoJDBC implements ContactListDao {
         PreparedStatement st = null;
 
         try {
+
             st = conn.prepareStatement(
-                    "UPDATE contaclist " +
-                            "SET groupName + ? " +
+                    "UPDATE contactlist " +
+                            "SET groupName = ? " +
                             "WHERE id = ?");
 
             st.setString(1, obj.getGroupName());
@@ -97,8 +97,10 @@ public class ContactListDaoJDBC implements ContactListDao {
 
             st.setInt(1, id);
 
+            rs = st.executeQuery();
+
             if (rs.next()) {
-                ContactList contactList = instantiateContacList(rs);
+                ContactList contactList = instantiateContactList(rs);
                 return contactList;
             }
             return null;
@@ -110,7 +112,7 @@ public class ContactListDaoJDBC implements ContactListDao {
         }
     }
 
-    private ContactList instantiateContacList(ResultSet rs) throws SQLException {
+    private ContactList instantiateContactList(ResultSet rs) throws SQLException {
         ContactList contactList = new ContactList();
         contactList.setId(rs.getInt("id"));
         contactList.setGroupName(rs.getString("groupName"));
@@ -123,16 +125,14 @@ public class ContactListDaoJDBC implements ContactListDao {
         ResultSet rs = null;
 
         try {
-            st = conn.prepareStatement("SELECT * FROM contactlist ");
+            st = conn.prepareStatement("SELECT * FROM contactlist");
 
             rs = st.executeQuery();
 
             List<ContactList> list = new ArrayList<>();
 
             while (rs.next()) {
-                ContactList contactList = new ContactList();
-                contactList.setId(rs.getInt("id"));
-                contactList.setGroupName(rs.getString("groupName"));
+                ContactList contactList = instantiateContactList(rs);
                 list.add(contactList);
             }
             return list;
@@ -142,8 +142,6 @@ public class ContactListDaoJDBC implements ContactListDao {
             DB.closeStatement(st);
             DB.closeResultSet(rs);
         }
-
-
     }
 }
 

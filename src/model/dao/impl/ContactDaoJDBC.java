@@ -22,36 +22,29 @@ public class ContactDaoJDBC implements ContactDao {
 
     @Override
     public void insert(Contact obj) {
-
         PreparedStatement st = null;
 
         try {
-            if (obj.getContactList() == null || obj.getContactList().getId() == null) {
-                throw new IllegalArgumentException("Insert error: ContactList or ContactList ID is null!");
-            }
-
             st = conn.prepareStatement(
-                    "INSERT INTO contact " +
-                            "(Name, Email, PhoneNumber, GroupId) " +
+                    "INSERT INTO contact (name, email, phoneNumber, groupId) " +
                             "VALUES (?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
 
             st.setString(1, obj.getName());
             st.setString(2, obj.getEmail());
             st.setString(3, obj.getPhoneNumber());
-            st.setInt(4, obj.getContactList().getId());
+            st.setInt(4, obj.getGroupId());
 
             int rowsAffected = st.executeUpdate();
 
             if (rowsAffected > 0) {
                 ResultSet rs = st.getGeneratedKeys();
                 if (rs.next()) {
-                    int id = rs.getInt(1);
-                    obj.setId(id);
+                    obj.setId(rs.getInt(1));
                 }
                 DB.closeResultSet(rs);
             } else {
-                throw new DbException("Unexpected error! No rows affected!");
+                throw new DbException("Unexpected error! No rows affected");
             }
         } catch (SQLException e) {
             throw new DbException(e.getMessage());
@@ -62,7 +55,6 @@ public class ContactDaoJDBC implements ContactDao {
 
     @Override
     public void update(Contact obj) {
-
         if (obj.getId() == null) {
             throw new IllegalArgumentException("Update error: Contact ID is null!");
         }
@@ -72,7 +64,7 @@ public class ContactDaoJDBC implements ContactDao {
         try {
             st = conn.prepareStatement(
                     "UPDATE contact " +
-                            "SET Name = ?, Email = ?, phoneNumber = ? " +
+                            "SET name = ?, email = ?, phoneNumber = ? " +
                             "WHERE id = ?");
 
             st.setString(1, obj.getName());
@@ -89,36 +81,33 @@ public class ContactDaoJDBC implements ContactDao {
     }
 
     @Override
-    public void deleteById(Integer id) {
-
+    public Contact deleteById(Integer id) {
         PreparedStatement st = null;
 
         try {
             st = conn.prepareStatement("DELETE FROM contact WHERE id = ? ");
-
             st.setInt(1, id);
-
             st.executeUpdate();
         } catch (SQLException e) {
             throw new DbException(e.getMessage());
         } finally {
             DB.closeStatement(st);
         }
+        return null;
     }
 
     @Override
     public Contact findById(Integer id) {
-
         PreparedStatement st = null;
         ResultSet rs = null;
 
         try {
             st = conn.prepareStatement(
-                    "SELECT contact.*, contactlist.groupName as GroupName, contactlist.id as GroupId "
-                            + "FROM contact "
-                            + "INNER JOIN contactlist "
-                            + "ON contact.GroupId = contactlist.id "
-                            + "WHERE contact.id = ?"
+                    "SELECT contact.*, contactlist.groupName as GroupName, contactlist.id as GroupId " +
+                            "FROM contact " +
+                            "INNER JOIN contactlist " +
+                            "ON contact.groupId = contactlist.id " +
+                            "WHERE contact.id = ?"
             );
 
             st.setInt(1, id);
@@ -126,8 +115,7 @@ public class ContactDaoJDBC implements ContactDao {
 
             if (rs.next()) {
                 ContactList contactList = instantiateContactList(rs);
-                Contact obj = instantiateContact(rs, contactList);
-                return obj;
+                return instantiateContact(rs, contactList);
             }
             return null;
         } catch (SQLException e) {
@@ -139,14 +127,14 @@ public class ContactDaoJDBC implements ContactDao {
     }
 
     private Contact instantiateContact(ResultSet rs, ContactList contactList) throws SQLException {
-        Contact obj = new Contact();
-        obj.setId(rs.getInt("id"));
-        obj.setName(rs.getString("Name"));
-        obj.setEmail(rs.getString("Email"));
-        obj.setPhoneNumber(rs.getString("PhoneNumber"));
-        obj.setGroupId(rs.getInt("GroupId"));
-        obj.setContactList(contactList);
-        return obj;
+        return new Contact(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("email"),
+                rs.getString("phoneNumber"),
+                rs.getInt("groupId"),
+                contactList
+        );
     }
 
     private ContactList instantiateContactList(ResultSet rs) throws SQLException {
@@ -156,18 +144,18 @@ public class ContactDaoJDBC implements ContactDao {
         return contactList;
     }
 
-
     @Override
     public List<Contact> findAll() {
-
         PreparedStatement st = null;
         ResultSet rs = null;
 
         try {
             st = conn.prepareStatement(
                     "SELECT contact.*, contactlist.groupName as GroupName, contactlist.id as GroupId " +
-                            "FROM contact INNER JOIN contactlist ON contact.GroupId = contactlist.id " +
-                            "ORDER BY Name");
+                            "FROM contact " +
+                            "INNER JOIN contactlist ON contact.groupId = contactlist.id " +
+                            "ORDER BY name"
+            );
 
             rs = st.executeQuery();
 
@@ -179,8 +167,9 @@ public class ContactDaoJDBC implements ContactDao {
 
                 if (contactList == null) {
                     contactList = instantiateContactList(rs);
-                    map.put(rs.getInt("contactlist.id"), contactList);
+                    map.put(rs.getInt("GroupId"), contactList);
                 }
+
                 Contact obj = instantiateContact(rs, contactList);
                 list.add(obj);
             }
@@ -192,6 +181,7 @@ public class ContactDaoJDBC implements ContactDao {
             DB.closeResultSet(rs);
         }
     }
+
     @Override
     public List<Contact> findByContactList(ContactList contactList) {
         PreparedStatement st = null;
@@ -200,10 +190,11 @@ public class ContactDaoJDBC implements ContactDao {
         try {
             st = conn.prepareStatement(
                     "SELECT contact.*, contactlist.groupName as GroupName, contactlist.id as GroupId " +
-                            "FROM contact INNER JOIN contactlist " +
-                            "ON contact.GroupId = contactlist.id " +
-                            "WHERE GroupId = ? " +
-                            "ORDER BY Name"
+                            "FROM contact " +
+                            "INNER JOIN contactlist " +
+                            "ON contact.groupId = contactlist.id " +
+                            "WHERE contact.groupId = ? " +
+                            "ORDER BY name"
             );
 
             st.setInt(1, contactList.getId());
@@ -232,3 +223,4 @@ public class ContactDaoJDBC implements ContactDao {
         }
     }
 }
+

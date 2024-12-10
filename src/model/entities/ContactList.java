@@ -4,23 +4,14 @@ import java.util.Objects;
 
 public class ContactList {
 
-    private static final long serialVersionUID = 1L;
-    private String groupName;
     private Integer id;
+    private String groupName;
 
-    public ContactList(){
+    public ContactList() {
     }
 
-    public ContactList(String name, Integer id) {
-        this.groupName = name;
-        this.id = id;
-    }
-
-    public String getGroupName() {
-        return groupName;
-    }
-
-    public void setGroupName(String groupName) {
+    public ContactList(Integer id, String groupName) {
+        this.id = null;
         this.groupName = groupName;
     }
 
@@ -30,6 +21,14 @@ public class ContactList {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     @Override
@@ -48,8 +47,9 @@ public class ContactList {
     @Override
     public String toString() {
         return "ContactList{" +
-                "groupName='" + groupName + '\'' +
-                ", id=" + id +
+                "id=" + id +
+                ", groupName='" + groupName + '\'' +
                 '}';
     }
 }
+

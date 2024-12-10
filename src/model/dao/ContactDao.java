@@ -11,7 +11,7 @@ public interface ContactDao {
 
     void update(Contact obj);
 
-    void deleteById(Integer id);
+    Contact deleteById(Integer id);
 
     Contact findById(Integer id);
 
