@@ -46,10 +46,9 @@ public class ContactList {
 
     @Override
     public String toString() {
-        return "ContactList{" +
-                "id=" + id +
-                ", groupName='" + groupName + '\'' +
-                '}';
+        return "ContactList: " +
+                "Id: " + id +
+                ", Group Name: '" + groupName + '\'';
     }
 }
 

@@ -97,13 +97,12 @@ public class Contact implements Serializable {
 
     @Override
     public String toString() {
-        return "Contact{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", groupId=" + groupId +
-                ", contactList=" + contactList +
-                '}';
+        return "Contact: " +
+                "Id: " + id +
+                ", Name: '" + name + '\'' +
+                ", Email: '" + email + '\'' +
+                ", Phone Number: '" + phoneNumber + '\'' +
+                ", Group Id: " + groupId +
+                ", Contact List: " + contactList;
     }
 }
